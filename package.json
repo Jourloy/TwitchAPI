@@ -1,0 +1,16 @@
+{
+  "name": "twitch_api_jourloy",
+  "version": "0.0.1",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+  },
+  "keywords": [],
+  "author": "Jourloy",
+  "license": "ISC",
+  "dependencies": {
+    "irc": "^0.5.2",
+    "node-fetch": "^2.6.1",
+    "ws": "^7.4.0"
+  }
+}
