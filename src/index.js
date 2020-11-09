@@ -14,6 +14,12 @@ class client {
 
         this.updateTime = 500;
         this.event = emmiter;
+        this.ws = new WebSocket('ws://irc-ws.chat.twitch.tv:80');
+        this.send = (message) => {
+            const ws = this.ws;
+            const channel = this.channel;
+            ws.send(`PRIVMSG ${channel} :${message}`);
+        }
 
         this.connect = () => {
             const auth = this.authorization;
@@ -21,7 +27,7 @@ class client {
             const channel = this.channel;
             const emitter = this.event;
 
-            const ws = new WebSocket('ws://irc-ws.chat.twitch.tv:80');
+            const ws = this.ws;
 
             ws.on('open', function open() {
                 ws.send(`PASS ${auth}`);
@@ -31,13 +37,24 @@ class client {
             ws.on('message', function incoming(data) {
                 const username = _.getUsernameFromData(data);
                 const text = _.getTextFromData(data);
-                if (username == null) return;
-                emitter.emit('message', username, text);
+                events(text, username, emitter);
             });
         };
     }
 }
 
-//
+function events(message, username, emitter) {
+    if (username == null) {
+    
+    } else {
+        const splitedMessage = message.split(' ');
+        if (splitedMessage[0] == '\x01ACTION') {
+            let newMessage = []
+            for (i in splitedMessage) if (splitedMessage[i] != '\x01ACTION') newMessage.push(splitedMessage[i]);
+            newMessage = newMessage.join(' ');
+            emitter.emit('action', username, newMessage) 
+        }
+    }
+}
 
 module.exports = client;
