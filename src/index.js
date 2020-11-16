@@ -1,5 +1,3 @@
-const fetch = require('node-fetch');
-const irc = require('irc');
 const Emmiter = require('events');
 const emmiter = new Emmiter();
 const WebSocket = require('ws');
@@ -15,10 +13,16 @@ class client {
         this.updateTime = 500;
         this.event = emmiter;
         this.ws = new WebSocket('ws://irc-ws.chat.twitch.tv:80');
+        
         this.send = (message) => {
             const ws = this.ws;
             const channel = this.channel;
             ws.send(`PRIVMSG ${channel} :${message}`);
+        }
+        this.action = (message) => {
+            const ws = this.ws;
+            const channel = this.channel;
+            ws.send(`PRIVMSG ${channel} :/me ${message}`);
         }
 
         this.connect = () => {
@@ -35,6 +39,7 @@ class client {
                 ws.send(`JOIN ${channel}`);
             });
             ws.on('message', function incoming(data) {
+                console.log(data)
                 const username = _.getUsernameFromData(data);
                 const text = _.getTextFromData(data);
                 events(text, username, emitter);
@@ -52,8 +57,8 @@ function events(message, username, emitter) {
             let newMessage = []
             for (i in splitedMessage) if (splitedMessage[i] != '\x01ACTION') newMessage.push(splitedMessage[i]);
             newMessage = newMessage.join(' ');
-            emitter.emit('action', username, newMessage) 
-        }
+            emitter.emit('action', username, newMessage)
+        } else emitter.emit('message', username, message);
     }
 }
 
